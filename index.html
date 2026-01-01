@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026</title>
+    <!-- Carregando a biblioteca de confetti no head -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Arial Rounded MT Bold", "Arial Rounded MT";
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo {
+            height: 350px;
+            z-index: 10;
+        }
+
+        .year {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            position: relative;
+            top: -90px;
+            left: 0;
+            background-color: #fff;
+            border-radius: 50px;
+            box-shadow: 0px 0px 10px #FF7A00;
+        }
+
+        strong {
+            font-size: 20rem;
+            color: #FF7A00;
+        }
+
+        span {
+            margin-top: -40px;
+            width: 100%;
+            text-align: center;
+            font-size: 2rem;
+            text-transform: uppercase;
+        }
+
+        /* Controles para os lançadores laterais */
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .launcher-btn {
+            padding: 15px 30px;
+            font-size: 1.3rem;
+            background-color: #9C27B0;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .launcher-btn:hover {
+            transform: translateY(-5px);
+            background-color: #7B1FA2;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .launcher-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mensagem que aparece */
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+            max-width: 500px;
+            width: 80%;
+            opacity: 0;
+            transition: all 0.5s ease;
+            border: 5px solid #FF7A00;
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .message h2 {
+            color: #FF7A00;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .message p {
+            color: #333;
+            font-size: 1.4rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .close-btn {
+            padding: 10px 25px;
+            background-color: #FF7A00;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .close-btn:hover {
+            background-color: #FF8C00;
+        }
+
+        /* Overlay escuro quando a mensagem aparece */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Overlay para quando a mensagem aparecer -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Mensagem que aparece ao tocar no botão -->
+    <div class="message" id="message">
+        <h2>🎉 Feliz 2026! 🎉</h2>
+        <p>Que este novo ano traga muitas conquistas, felicidade e momentos inesquecíveis para você e todos ao seu redor!</p>
+        <p>Que cada dia seja uma nova oportunidade para brilhar e alcançar seus objetivos!</p>
+        <button class="close-btn" onclick="closeMessage()">Fechar</button>
+    </div>
+
+    <main>
+        <div class="logo">
+            <!-- Imagem de exemplo - substitua pelo caminho correto -->
+            <img src="/EV/finev/Finev-Logo-Icon.png" alt="Finev-Logo-Icon">
+        </div>
+        <div class="year">
+            <h1><strong>26</strong></h1>
+            <span>Happy new year...</span>
+        </div>
+    </main>
+
+    <div class="controls">
+        <!-- O botão será adicionado via JavaScript -->
+    </div>
+
+    <script>
+        // ============================================
+        // FUNÇÃO PARA AMBOS OS LADOS SIMULTANEAMENTE
+        // ============================================
+        function fireBothSides() {
+            // Efeito de confetti do lado esquerdo
+            confetti({
+                particleCount: 150,
+                angle: 60,
+                spread: 70,
+                origin: { x: 0, y: 0.6 },
+                colors: ['#FF7A00', '#9C27B0', '#4CAF50', '#2196F3'],
+                scalar: 1.2
+            });
+            
+            // Efeito de confetti do lado direito
+            confetti({
+                particleCount: 150,
+                angle: 120,
+                spread: 70,
+                origin: { x: 1, y: 0.6 },
+                colors: ['#ff6584', '#FFD700', '#FF5722', '#E91E63'],
+                scalar: 1.2
+            });
+            
+            // Efeito central adicional após um breve delay
+            setTimeout(() => {
+                confetti({
+                    particleCount: 200,
+                    spread: 100,
+                    origin: { y: 0.5 },
+                    colors: ['#FF7A00', '#9C27B0', '#FFFFFF', '#FFD700'],
+                    scalar: 1.1
+                });
+                
+                // Mais confetti central
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 150,
+                        spread: 90,
+                        origin: { y: 0.4 },
+                        colors: ['#4CAF50', '#2196F3', '#FF5722', '#E91E63']
+                    });
+                }, 300);
+            }, 400);
+            
+            // Mostra a mensagem
+            showMessage();
+        }
+
+        // ============================================
+        // FUNÇÕES PARA MOSTRAR/OCULTAR MENSAGEM
+        // ============================================
+        function showMessage() {
+            const message = document.getElementById('message');
+            const overlay = document.getElementById('overlay');
+            
+            message.classList.add('show');
+            overlay.classList.add('show');
+            
+            // Adiciona mais confetti quando a mensagem aparece
+            setTimeout(() => {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.7 },
+                    colors: ['#FFD700', '#FFFFFF', '#FF7A00']
+                });
+            }, 500);
+        }
+
+        function closeMessage() {
+            const message = document.getElementById('message');
+            const overlay = document.getElementById('overlay');
+            
+            message.classList.remove('show');
+            overlay.classList.remove('show');
+            
+            // Adiciona um pouco mais de confetti ao fechar a mensagem
+            setTimeout(() => {
+                confetti({
+                    particleCount: 80,
+                    spread: 60,
+                    origin: { y: 0.8 },
+                    colors: ['#9C27B0', '#4CAF50']
+                });
+            }, 200);
+        }
+
+        // ============================================
+        // DISPARAR CONFETTI AUTOMATICAMENTE AO CARREGAR
+        // ============================================
+        window.addEventListener('load', function() {
+            // Pequeno delay para garantir que tudo está carregado
+            setTimeout(() => {
+                // Dispara confetti dos dois lados ao carregar
+                fireBothSides();
+            }, 800);
+        });
+        
+        // Adiciona botão para disparar ambos os lados
+        document.addEventListener('DOMContentLoaded', function() {
+            const controlsDiv = document.querySelector('.controls');
+            const bothBtn = document.createElement('button');
+            bothBtn.className = 'launcher-btn';
+            bothBtn.textContent = 'TOQUE PARA VER A MENSAGEM';
+            bothBtn.onclick = fireBothSides;
+            controlsDiv.appendChild(bothBtn);
+        });
+    </script>
+</body>
+
+</html>
